@@ -1,23 +1,23 @@
 {
-"name": “JRMSimpleGeofenceManager”,
-"version": “0.0.1”,
+"name": "JRMSimpleGeofenceManager",
+"version": "0.0.1",
 "summary": "Geofencing library for iOS.",
 "description": "                   A longer description of JRMSimpleGeofenceManager in Markdown format.\n\n                   * Think: Why did you write this? What is the focus? What does it do?\n                   * CocoaPods will be using this to generate tags, and improve search results.\n                   * Try to keep it short, snappy and to the point.\n                   * Finally, don't worry about the indent, CocoaPods strips it!\n",
-"homepage": "https://github.com/JackrabbitMobile/JRMSimpleGeofenceManager”,
+"homepage": "https://github.com/JackrabbitMobile/JRMSimpleGeofenceManager",
 "license": {
 "type": "MIT",
 "file": "LICENSE"
 },
 "authors": {
-“Matt Wanninger”: “mattw@jackrabbitmobile.com”
+"Matt Wanninger": "mattw@jackrabbitmobile.com"
 },
 "platforms": {
 "ios": "7.0"
 },
 "source": {
 "git": "https://github.com/JackrabbitMobile/JRMSimpleGeofenceManager.git",
-"tag": "v0.0.1”
+"tag": "v0.0.1"
 },
-"source_files": “JRMSimpleGeofenceManager/*.{h,m}”,
+"source_files": "JRMSimpleGeofenceManager/*.{h,m}",
 "requires_arc": true
 }
