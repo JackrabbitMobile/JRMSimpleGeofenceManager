@@ -1,0 +1,1 @@
+# JRMSimpleGeofenceManager
