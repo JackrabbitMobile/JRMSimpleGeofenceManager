@@ -76,9 +76,11 @@ static const NSUInteger regionMonitoringLimit = 20;
 }
 
 - (void)requestRegionState:(CLRegion*)region {
-    while (self.processingMonitoringRegionCount > 0) {}
-    self.processingRegionStateCount++;
-    [self.locationManager requestStateForRegion:region];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        while (self.processingMonitoringRegionCount > 0) {}
+        self.processingRegionStateCount++;
+        [self.locationManager requestStateForRegion:region];
+    });
 }
 
 #pragma mark - JRMGeofenceManager private methods

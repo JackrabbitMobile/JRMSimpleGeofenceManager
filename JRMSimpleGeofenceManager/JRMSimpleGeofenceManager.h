@@ -69,11 +69,11 @@
  */
 - (void)reloadGeofences;
 /**
- *  Request the state for all monitored regions; this will call the JRMSimpleGeofenceManagerDelegate's geofenceManager:didEnterGeofence and geofenceManager:didExitGeofence for every monitored region.
+ *  Asynchronously requests the state for all monitored regions; this will call the JRMSimpleGeofenceManagerDelegate's geofenceManager:didEnterGeofence and geofenceManager:didExitGeofence for every monitored region.
  */
 - (void)requestStateForAllRegions;
 /**
- *  Request the state for one particular region; this will call the JRMSimpleGeofenceManagerDelegate's geofenceManager:didEnterGeofence and geofenceManager:didExitGeofence for the region.
+ *  Asynchronously requests the state for one particular region; this will call the JRMSimpleGeofenceManagerDelegate's geofenceManager:didEnterGeofence and geofenceManager:didExitGeofence for the region.
  *
  *  @param region The CLRegion to get the state of.
  */
