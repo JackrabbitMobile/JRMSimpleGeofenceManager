@@ -11,7 +11,7 @@
 
 @property (nonatomic) CLLocationManager *locationManager;
 @property (nonatomic) NSArray *allGeofences;
-@property (nonatomic) BOOL isRequestingRegionState;
+@property (nonatomic) int processingRegionCount;
 
 @end
 
@@ -36,6 +36,7 @@ static const NSUInteger regionMonitoringLimit = 20;
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
+        self.processingRegionCount = 0;
     }
     return self;
 }
@@ -65,8 +66,14 @@ static const NSUInteger regionMonitoringLimit = 20;
     }
 }
 
+- (void)requestStateForAllRegions {
+    for (CLRegion *region in [self.locationManager monitoredRegions]) {
+        [self requestRegionState:region];
+    }
+}
+
 - (void)requestRegionState:(CLRegion*)region {
-    self.isRequestingRegionState = YES;
+    self.processingRegionCount++;
     [self.locationManager requestStateForRegion:region];
 }
 
@@ -94,12 +101,12 @@ static const NSUInteger regionMonitoringLimit = 20;
         }
     }
     
-    if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusRestricted) { //You need to authorize Location Services for the APP
+    if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusRestricted) {
         [self failedProcessingGeofencesWithError:error];
         return;
     }
     
-    NSLog(@"Trying again for region %@", region.identifier);
+    NSLog(@"Retry monitoring region %@", region.identifier);
     [manager performSelectorInBackground:@selector(startMonitoringForRegion:) withObject:region];
 }
 
@@ -115,17 +122,11 @@ static const NSUInteger regionMonitoringLimit = 20;
     }
 }
 
-- (void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLCircularRegion *)region{
-}
-
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusRestricted) { //You need to authorize Location Services for the APP
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusRestricted) {
         [self failedProcessingGeofencesWithError:error];
         return;
     }
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
 }
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
@@ -135,7 +136,7 @@ static const NSUInteger regionMonitoringLimit = 20;
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
-    if (self.isRequestingRegionState) {
+    if (self.processingRegionCount > 0) {
         if (state == CLRegionStateInside) {
             if ([self.delegate respondsToSelector:@selector(geofenceManager:didEnterGeofence:)]) {
                 [self.delegate geofenceManager:self didEnterGeofence:region];
@@ -146,7 +147,7 @@ static const NSUInteger regionMonitoringLimit = 20;
             }
         }
         
-        self.isRequestingRegionState = NO;
+        self.processingRegionCount--;
     }
 }
 
