@@ -11,7 +11,8 @@
 
 @property (nonatomic) CLLocationManager *locationManager;
 @property (nonatomic) NSArray *allGeofences;
-@property (nonatomic) int processingRegionCount;
+@property (nonatomic) unsigned long processingRegionStateCount;
+@property (nonatomic) unsigned long processingMonitoringRegionCount;
 
 @end
 
@@ -36,7 +37,8 @@ static const NSUInteger regionMonitoringLimit = 20;
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
-        self.processingRegionCount = 0;
+        self.processingRegionStateCount = 0;
+        self.processingMonitoringRegionCount = 0;
     }
     return self;
 }
@@ -62,6 +64,7 @@ static const NSUInteger regionMonitoringLimit = 20;
     }
     
     for (CLRegion *region in self.allGeofences) {
+        self.processingMonitoringRegionCount++;
         [self.locationManager startMonitoringForRegion:region];
     }
 }
@@ -73,7 +76,8 @@ static const NSUInteger regionMonitoringLimit = 20;
 }
 
 - (void)requestRegionState:(CLRegion*)region {
-    self.processingRegionCount++;
+    while (self.processingMonitoringRegionCount > 0) {}
+    self.processingRegionStateCount++;
     [self.locationManager requestStateForRegion:region];
 }
 
@@ -89,6 +93,8 @@ static const NSUInteger regionMonitoringLimit = 20;
             [self.delegate geofenceManager:self didFailWithError:timeoutError];
         }
     }
+    self.processingMonitoringRegionCount = 0;
+    self.processingRegionStateCount = 0;
 }
 
 #pragma mark - CLLocationManagerDelegate methods
@@ -108,6 +114,10 @@ static const NSUInteger regionMonitoringLimit = 20;
     
     NSLog(@"Retry monitoring region %@", region.identifier);
     [manager performSelectorInBackground:@selector(startMonitoringForRegion:) withObject:region];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region {
+    self.processingMonitoringRegionCount--;
 }
 
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
@@ -136,7 +146,7 @@ static const NSUInteger regionMonitoringLimit = 20;
 }
 
 - (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region {
-    if (self.processingRegionCount > 0) {
+    if (self.processingRegionStateCount > 0) {
         if (state == CLRegionStateInside) {
             if ([self.delegate respondsToSelector:@selector(geofenceManager:didEnterGeofence:)]) {
                 [self.delegate geofenceManager:self didEnterGeofence:region];
@@ -147,7 +157,7 @@ static const NSUInteger regionMonitoringLimit = 20;
             }
         }
         
-        self.processingRegionCount--;
+        self.processingRegionStateCount--;
     }
 }
 
