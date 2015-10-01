@@ -36,7 +36,7 @@ static const NSUInteger regionMonitoringLimit = 20;
     if ((self = [super init])) {
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
         self.processingRegionStateCount = 0;
         self.processingMonitoringRegionCount = 0;
     }
